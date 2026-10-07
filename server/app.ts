@@ -11,6 +11,7 @@ export interface AppOptions {
   store: SoreStore;
   immich: ImmichClient | null;
   immichPublicUrl: string | null;
+  version: string;
 }
 
 function parseId(c: Context): number | null {
@@ -18,7 +19,7 @@ function parseId(c: Context): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-export function createApp({ store, immich, immichPublicUrl }: AppOptions): Hono {
+export function createApp({ store, immich, immichPublicUrl, version }: AppOptions): Hono {
   const app = new Hono();
 
   app.onError((err, c) => {
@@ -27,7 +28,7 @@ export function createApp({ store, immich, immichPublicUrl }: AppOptions): Hono 
     return c.json({ error: 'Error interno' }, 500);
   });
 
-  app.get('/api/config', (c) => c.json({ immich: immich !== null, immichPublicUrl }));
+  app.get('/api/config', (c) => c.json({ immich: immich !== null, immichPublicUrl, version }));
 
   app.get('/api/sores', (c) => c.json(store.list()));
 

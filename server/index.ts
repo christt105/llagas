@@ -12,7 +12,12 @@ const immich =
     ? new ImmichClient(config.immichUrl, config.immichApiKey, config.immichAlbum)
     : null;
 
-const app = createApp({ store, immich, immichPublicUrl: immich ? config.immichPublicUrl : null });
+const app = createApp({
+  store,
+  immich,
+  immichPublicUrl: immich ? config.immichPublicUrl : null,
+  version: config.version,
+});
 
 app.use(
   '/*',
@@ -27,7 +32,7 @@ app.use(
 app.get('*', serveStatic({ path: `${config.staticDir}/index.html` }));
 
 const server = serve({ fetch: app.fetch, port: config.port }, ({ port }) => {
-  console.log(`llagas escuchando en :${port} (Immich ${immich ? 'activado' : 'desactivado'})`);
+  console.log(`llagas ${config.version} escuchando en :${port} (Immich ${immich ? 'activado' : 'desactivado'})`);
 });
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {

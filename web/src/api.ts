@@ -4,6 +4,7 @@ import type { ImmichAsset, Sore, SoreInput } from '../../shared/types.ts';
 export interface AppConfig {
   immich: boolean;
   immichPublicUrl: string | null;
+  version: string | null;
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -76,7 +77,7 @@ let configPromise: Promise<AppConfig> | null = null;
 export function useConfig(): AppConfig | null {
   const [config, setConfig] = useState<AppConfig | null>(null);
   useEffect(() => {
-    configPromise ??= request<AppConfig>('/api/config').catch(() => ({ immich: false, immichPublicUrl: null }));
+    configPromise ??= request<AppConfig>('/api/config').catch(() => ({ immich: false, immichPublicUrl: null, version: null }));
     void configPromise.then(setConfig);
   }, []);
   return config;

@@ -6,7 +6,8 @@ COPY . .
 RUN npm run build
 
 FROM node:22-alpine
-ENV NODE_ENV=production DATA_DIR=/data STATIC_DIR=/app/dist PORT=8080
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION NODE_ENV=production DATA_DIR=/data STATIC_DIR=/app/dist PORT=8080
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force

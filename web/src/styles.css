@@ -100,6 +100,33 @@ svg {
   gap: 10px;
 }
 
+/* Footer */
+
+.app-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.app-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-footer svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  stroke: none;
+}
+
 /* Navigation */
 
 .tabbar {
