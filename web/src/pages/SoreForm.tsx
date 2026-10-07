@@ -123,196 +123,198 @@ export function SoreForm({ sores, sore }: { sores: Sore[]; sore?: Sore }) {
   const pickerTo = form.healedOn ?? today;
 
   return (
-    <form onSubmit={save}>
-      <div class="topbar">
-        <button type="button" class="back" onClick={goBack} aria-label="Volver">
-          <Icon d={ICONS.back} size={26} />
-        </button>
-        <h1>{sore ? 'Editar llaga' : 'Nueva llaga'}</h1>
-      </div>
-
-      <div class="field">
-        <span class="label">Ubicación</span>
-        <MouthPicker
-          point={form.point}
-          location={location}
-          others={sores.filter((s) => s.id !== sore?.id)}
-          onPick={(point, region) => {
-            setShowCustom(false);
-            setForm((f) => ({ ...f, point, location: region }));
-          }}
-          onClear={() => set('point', null)}
-        />
-        <details class="table-view">
-          <summary>Elegir de la lista o escribirla</summary>
-          <div class="chips">
-            {locations.map((option) => (
-              <button
-                type="button"
-                key={option}
-                class="chip"
-                aria-pressed={!showCustom && form.location === option}
-                onClick={() => {
-                  setShowCustom(false);
-                  set('location', option);
-                }}
-              >
-                {option}
-              </button>
-            ))}
-            <button type="button" class="chip" aria-pressed={showCustom} onClick={() => setShowCustom(true)}>
-              Otra…
-            </button>
-          </div>
-          {showCustom && (
-            <input
-              type="text"
-              placeholder="¿Dónde?"
-              value={customLocation}
-              onInput={(e) => setCustomLocation(e.currentTarget.value)}
-              autoFocus
-            />
-          )}
-        </details>
-      </div>
-
-      <div class="field">
-        <label for="started">Apareció</label>
-        <div class="date-row">
-          <input
-            id="started"
-            type="date"
-            required
-            max={today}
-            value={form.startedOn}
-            onChange={(e) => set('startedOn', e.currentTarget.value)}
-          />
-          <button type="button" class="small" onClick={() => set('startedOn', today)}>
-            Hoy
+    <>
+      <form onSubmit={save}>
+        <div class="topbar">
+          <button type="button" class="back" onClick={goBack} aria-label="Volver">
+            <Icon d={ICONS.back} size={26} />
           </button>
-          <button type="button" class="small" onClick={() => set('startedOn', addDays(today, -1))}>
-            Ayer
-          </button>
+          <h1>{sore ? 'Editar llaga' : 'Nueva llaga'}</h1>
         </div>
-      </div>
 
-      <div class="field">
-        <label for="healed">
-          Curada <span class="hint">{form.healedOn ? '' : '(vacío = sigue activa)'}</span>
-        </label>
-        <div class="date-row">
-          <input
-            id="healed"
-            type="date"
-            min={form.startedOn}
-            max={today}
-            value={form.healedOn ?? ''}
-            onChange={(e) => set('healedOn', e.currentTarget.value || null)}
-          />
-          <button type="button" class="small" onClick={() => set('healedOn', today)}>
-            Hoy
-          </button>
-          {form.healedOn && (
-            <button type="button" class="small" onClick={() => set('healedOn', null)}>
-              Activa
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div class="field">
-        <span class="label">Dolor</span>
-        <div class="pain">
-          {[1, 2, 3, 4, 5].map((level) => (
-            <button
-              type="button"
-              key={level}
-              aria-pressed={form.pain === level}
-              onClick={() => set('pain', form.pain === level ? null : level)}
-            >
-              <strong>{level}</strong>
-              <small>{PAIN_LABELS[level]}</small>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div class="field">
-        <span class="label">Causa sospechada</span>
-        <ChipGroup options={CAUSES} value={form.cause} onChange={(v) => set('cause', v)} />
-      </div>
-
-      <div class="field">
-        <span class="label">Tratamiento</span>
-        <ChipGroup options={TREATMENTS} value={form.treatment} onChange={(v) => set('treatment', v)} />
-      </div>
-
-      <div class="field">
-        <label for="notes">Notas</label>
-        <textarea id="notes" value={form.notes} onInput={(e) => set('notes', e.currentTarget.value)} />
-      </div>
-
-      {config?.immich && (
         <div class="field">
-          <span class="label">Fotos</span>
-          {photos.length > 0 && (
-            <div class="photo-grid">
-              {photos.map((id) => (
-                <button type="button" key={id} class="photo" onClick={() => setViewing(id)}>
-                  <img src={thumbUrl(id)} alt="" loading="lazy" />
+          <span class="label">Ubicación</span>
+          <MouthPicker
+            point={form.point}
+            location={location}
+            others={sores.filter((s) => s.id !== sore?.id)}
+            onPick={(point, region) => {
+              setShowCustom(false);
+              setForm((f) => ({ ...f, point, location: region }));
+            }}
+            onClear={() => set('point', null)}
+          />
+          <details class="table-view">
+            <summary>Elegir de la lista o escribirla</summary>
+            <div class="chips">
+              {locations.map((option) => (
+                <button
+                  type="button"
+                  key={option}
+                  class="chip"
+                  aria-pressed={!showCustom && form.location === option}
+                  onClick={() => {
+                    setShowCustom(false);
+                    set('location', option);
+                  }}
+                >
+                  {option}
                 </button>
               ))}
+              <button type="button" class="chip" aria-pressed={showCustom} onClick={() => setShowCustom(true)}>
+                Otra…
+              </button>
             </div>
-          )}
-          <div class="photo-actions">
-            <button type="button" class="small" onClick={() => cameraInput.current?.click()}>
-              <Icon d={ICONS.camera} size={18} /> Hacer foto
+            {showCustom && (
+              <input
+                type="text"
+                placeholder="¿Dónde?"
+                value={customLocation}
+                onInput={(e) => setCustomLocation(e.currentTarget.value)}
+                autoFocus
+              />
+            )}
+          </details>
+        </div>
+
+        <div class="field">
+          <label for="started">Apareció</label>
+          <div class="date-row">
+            <input
+              id="started"
+              type="date"
+              required
+              max={today}
+              value={form.startedOn}
+              onChange={(e) => set('startedOn', e.currentTarget.value)}
+            />
+            <button type="button" class="small" onClick={() => set('startedOn', today)}>
+              Hoy
             </button>
-            <button type="button" class="small" onClick={() => setPicking(true)}>
-              <Icon d={ICONS.image} size={18} /> Elegir de Immich
-            </button>
-            <button type="button" class="small" onClick={() => galleryInput.current?.click()}>
-              Subir archivo
+            <button type="button" class="small" onClick={() => set('startedOn', addDays(today, -1))}>
+              Ayer
             </button>
           </div>
-          {uploading > 0 && <p class="muted">Subiendo {uploading}…</p>}
-          <input
-            ref={cameraInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            onChange={(e) => {
-              void onFiles(e.currentTarget.files);
-              e.currentTarget.value = '';
-            }}
-          />
-          <input
-            ref={galleryInput}
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            onChange={(e) => {
-              void onFiles(e.currentTarget.files);
-              e.currentTarget.value = '';
-            }}
-          />
         </div>
-      )}
 
-      {error && <p class="error">{error}</p>}
+        <div class="field">
+          <label for="healed">
+            Curada <span class="hint">{form.healedOn ? '' : '(vacío = sigue activa)'}</span>
+          </label>
+          <div class="date-row">
+            <input
+              id="healed"
+              type="date"
+              min={form.startedOn}
+              max={today}
+              value={form.healedOn ?? ''}
+              onChange={(e) => set('healedOn', e.currentTarget.value || null)}
+            />
+            <button type="button" class="small" onClick={() => set('healedOn', today)}>
+              Hoy
+            </button>
+            {form.healedOn && (
+              <button type="button" class="small" onClick={() => set('healedOn', null)}>
+                Activa
+              </button>
+            )}
+          </div>
+        </div>
 
-      <div class="form-actions">
-        {sore && (
-          <button type="button" class="danger" onClick={remove}>
-            Borrar
-          </button>
+        <div class="field">
+          <span class="label">Dolor</span>
+          <div class="pain">
+            {[1, 2, 3, 4, 5].map((level) => (
+              <button
+                type="button"
+                key={level}
+                aria-pressed={form.pain === level}
+                onClick={() => set('pain', form.pain === level ? null : level)}
+              >
+                <strong>{level}</strong>
+                <small>{PAIN_LABELS[level]}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label">Causa sospechada</span>
+          <ChipGroup options={CAUSES} value={form.cause} onChange={(v) => set('cause', v)} />
+        </div>
+
+        <div class="field">
+          <span class="label">Tratamiento</span>
+          <ChipGroup options={TREATMENTS} value={form.treatment} onChange={(v) => set('treatment', v)} />
+        </div>
+
+        <div class="field">
+          <label for="notes">Notas</label>
+          <textarea id="notes" value={form.notes} onInput={(e) => set('notes', e.currentTarget.value)} />
+        </div>
+
+        {config?.immich && (
+          <div class="field">
+            <span class="label">Fotos</span>
+            {photos.length > 0 && (
+              <div class="photo-grid">
+                {photos.map((id) => (
+                  <button type="button" key={id} class="photo" onClick={() => setViewing(id)}>
+                    <img src={thumbUrl(id)} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div class="photo-actions">
+              <button type="button" class="small" onClick={() => cameraInput.current?.click()}>
+                <Icon d={ICONS.camera} size={18} /> Hacer foto
+              </button>
+              <button type="button" class="small" onClick={() => setPicking(true)}>
+                <Icon d={ICONS.image} size={18} /> Elegir de Immich
+              </button>
+              <button type="button" class="small" onClick={() => galleryInput.current?.click()}>
+                Subir archivo
+              </button>
+            </div>
+            {uploading > 0 && <p class="muted">Subiendo {uploading}…</p>}
+            <input
+              ref={cameraInput}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              hidden
+              onChange={(e) => {
+                void onFiles(e.currentTarget.files);
+                e.currentTarget.value = '';
+              }}
+            />
+            <input
+              ref={galleryInput}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => {
+                void onFiles(e.currentTarget.files);
+                e.currentTarget.value = '';
+              }}
+            />
+          </div>
         )}
-        <button type="submit" class="primary" disabled={saving || uploading > 0}>
-          {saving ? 'Guardando…' : 'Guardar'}
-        </button>
-      </div>
+
+        {error && <p class="error">{error}</p>}
+
+        <div class="form-actions">
+          {sore && (
+            <button type="button" class="danger" onClick={remove}>
+              Borrar
+            </button>
+          )}
+          <button type="submit" class="primary" disabled={saving || uploading > 0}>
+            {saving ? 'Guardando…' : 'Guardar'}
+          </button>
+        </div>
+      </form>
 
       {picking && (
         <PhotoPicker
@@ -337,6 +339,6 @@ export function SoreForm({ sores, sore }: { sores: Sore[]; sore?: Sore }) {
           }}
         />
       )}
-    </form>
+    </>
   );
 }
