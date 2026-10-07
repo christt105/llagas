@@ -16,7 +16,7 @@ const ASSET = '3d5481bd-7f30-43a8-85d5-3c97bcbc50cc';
 
 beforeEach(() => {
   store = new SoreStore(':memory:');
-  app = createApp({ store, immich: null, immichPublicUrl: null });
+  app = createApp({ store, immich: null, immichPublicUrl: null, version: 'v1.2.3' });
 });
 
 afterEach(() => store.close());
@@ -67,8 +67,8 @@ describe('sores API', () => {
     expect(rows.n).toBe(0);
   });
 
-  it('reports Immich as unavailable when not configured', async () => {
-    expect(await (await app.request('/api/config')).json()).toEqual({ immich: false, immichPublicUrl: null });
+  it('reports the version and Immich as unavailable when not configured', async () => {
+    expect(await (await app.request('/api/config')).json()).toEqual({ immich: false, immichPublicUrl: null, version: 'v1.2.3' });
     expect((await app.request('/api/immich/search?from=2026-10-01&to=2026-10-02')).status).toBe(503);
   });
 

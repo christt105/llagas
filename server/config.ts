@@ -8,6 +8,7 @@ export interface Config {
   immichApiKey: string | null;
   immichPublicUrl: string | null;
   immichAlbum: string;
+  version: string;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -20,5 +21,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     immichApiKey: env.IMMICH_API_KEY?.trim() || null,
     immichPublicUrl: env.IMMICH_PUBLIC_URL?.trim() || immichUrl,
     immichAlbum: env.IMMICH_ALBUM?.trim() || 'Llagas',
+    version: env.APP_VERSION?.trim() || 'dev',
   };
 }

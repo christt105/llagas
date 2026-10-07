@@ -1,4 +1,5 @@
 import { useSores } from './api.ts';
+import { Footer } from './components/Footer.tsx';
 import { useRoute, type Route } from './router.ts';
 import { Home } from './pages/Home.tsx';
 import { History } from './pages/History.tsx';
@@ -34,10 +35,12 @@ function Page({ route }: { route: Route }) {
 export function App() {
   const route = useRoute();
   const showFab = route.name === 'home' || route.name === 'history';
+  const isTab = TABS.some((tab) => tab.route === route.name);
   return (
     <>
       <main>
         <Page route={route} />
+        {isTab && <Footer />}
       </main>
       {showFab && (
         <a class="fab" href="#/nueva" aria-label="Nueva llaga">
