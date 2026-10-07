@@ -47,23 +47,12 @@ export function MouthMap({ view, dots, onPick }: Props) {
       onClick={handleClick}
     >
       {view.regions.map((r) => (
-        <path
-          key={r.id}
-          d={r.d}
-          data-region={r.name}
-          class={`region tone-${r.tone}${r.stroke ? ' band' : ''}`}
-          style={r.stroke ? { strokeWidth: r.stroke } : undefined}
-        >
+        <path key={r.id} d={r.d} data-region={r.name} class={`region tone-${r.tone}`}>
           <title>{r.name}</title>
         </path>
       ))}
       {view.decor.map((d, i) => (
-        <path
-          key={i}
-          d={d.d}
-          class={`decor ${d.className}${d.stroke ? ' band' : ''}`}
-          style={d.stroke ? { strokeWidth: d.stroke, strokeDasharray: d.dash } : undefined}
-        />
+        <path key={i} d={d.d} class={`decor ${d.className}`} />
       ))}
       <text class="side" x={4} y={view.height + 16}>
         derecha

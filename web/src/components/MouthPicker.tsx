@@ -25,14 +25,16 @@ export function MouthPicker({ point, location, others, onPick, onClear }: Props)
 
   return (
     <div>
-      <div class="chips map-tabs">
-        {MOUTH_VIEWS.map((v) => (
-          <button type="button" key={v.id} class="chip small" aria-pressed={v.id === viewId} onClick={() => setViewId(v.id)}>
-            {v.name}
-            {point?.view === v.id ? ' •' : ''}
-          </button>
-        ))}
-      </div>
+      {MOUTH_VIEWS.length > 1 && (
+        <div class="chips map-tabs">
+          {MOUTH_VIEWS.map((v) => (
+            <button type="button" key={v.id} class="chip small" aria-pressed={v.id === viewId} onClick={() => setViewId(v.id)}>
+              {v.name}
+              {point?.view === v.id ? ' •' : ''}
+            </button>
+          ))}
+        </div>
+      )}
       <MouthMap view={view} dots={dots} onPick={(x, y, region) => onPick({ view: viewId, x, y }, region)} />
       <div class="picked">
         {point ? (

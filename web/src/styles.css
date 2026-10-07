@@ -760,46 +760,54 @@ th.num {
   margin: 0 auto;
   height: auto;
   stroke: none;
-  --tone-lip: #e9a3a6;
-  --tone-gum: #f2b8bb;
-  --tone-palate: #e7a2a9;
-  --tone-tongue: #e48a93;
-  --tone-floor: #efb4b8;
-  --tone-cheek: #f7d0cf;
+  --tone-lip: #e98f96;
+  --tone-gum: #f3b3b6;
+  --tone-palate: #eba0a6;
+  --tone-velum: #de8d95;
+  --tone-tongue: #e3848f;
+  --tone-floor: #f0aab0;
+  --tone-cheek: #f6c9c9;
+  --tone-throat: #7a3640;
+  --tone-tonsil: #e6a77e;
   --tone-edge: rgba(120, 40, 50, 0.35);
   --tone-teeth: #fffdf7;
+  --tone-teeth-edge: rgba(110, 90, 80, 0.55);
+  --tone-shine: rgba(255, 255, 255, 0.55);
 }
 
 @media (prefers-color-scheme: dark) {
   .mouth {
-    --tone-lip: #b9767a;
+    --tone-lip: #b56a71;
     --tone-gum: #c4878b;
-    --tone-palate: #b5767d;
-    --tone-tongue: #b4626c;
+    --tone-palate: #b8747b;
+    --tone-velum: #a8656d;
+    --tone-tongue: #b05e69;
     --tone-floor: #bd8489;
     --tone-cheek: #9e7473;
+    --tone-throat: #3c1a20;
+    --tone-tonsil: #b07c5c;
     --tone-edge: rgba(0, 0, 0, 0.45);
     --tone-teeth: #d8d4c8;
+    --tone-teeth-edge: rgba(0, 0, 0, 0.5);
+    --tone-shine: rgba(255, 255, 255, 0.25);
   }
 }
 
 .mouth .region {
   stroke: var(--tone-edge);
   stroke-width: 1;
-}
-
-.mouth .region.band {
-  fill: none;
-  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .mouth .tone-lip { fill: var(--tone-lip); }
 .mouth .tone-gum { fill: var(--tone-gum); }
 .mouth .tone-palate { fill: var(--tone-palate); }
+.mouth .tone-velum { fill: var(--tone-velum); }
 .mouth .tone-tongue { fill: var(--tone-tongue); }
 .mouth .tone-floor { fill: var(--tone-floor); }
 .mouth .tone-cheek { fill: var(--tone-cheek); }
-.mouth .band.tone-gum { stroke: var(--tone-gum); }
+.mouth .tone-throat { fill: var(--tone-throat); }
+.mouth .tone-tonsil { fill: var(--tone-tonsil); }
 
 .mouth.pickable .region {
   cursor: crosshair;
@@ -814,30 +822,30 @@ th.num {
   fill: none;
 }
 
-.mouth .teeth {
+.mouth .tooth {
   fill: var(--tone-teeth);
-  stroke: var(--tone-teeth);
+  stroke: var(--tone-teeth-edge);
+  stroke-width: 1;
+  stroke-linejoin: round;
 }
 
-.mouth .teeth.band {
-  fill: none;
-}
-
-.mouth .teeth-gap,
+.mouth .tooth-line,
 .mouth .raphe,
 .mouth .groove {
   stroke: var(--tone-edge);
-  stroke-width: 1.5;
+  stroke-width: 1.2;
   stroke-linecap: round;
 }
 
-.mouth .mouth-dark {
-  fill: #5a2a30;
+.mouth .tooth-line {
+  stroke: var(--tone-teeth-edge);
+  stroke-width: 0.8;
 }
 
-.mouth .uvula {
-  fill: var(--tone-tongue);
-  stroke: var(--tone-edge);
+.mouth .lip-shine {
+  stroke: var(--tone-shine);
+  stroke-width: 4;
+  stroke-linecap: round;
 }
 
 .mouth .side {
@@ -869,7 +877,7 @@ th.num {
 
 .map-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px 10px;
 }
 

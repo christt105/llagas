@@ -18,16 +18,27 @@ describe('mouth views', () => {
   });
 
   it('mirrors right-side regions onto the left', () => {
-    const tongue = MOUTH_VIEWS.find((v) => v.id === 'lengua')!;
-    const right = tongue.regions.find((r) => r.name === 'Lengua derecha')!;
-    const left = tongue.regions.find((r) => r.name === 'Lengua izquierda')!;
-    expect(left.anchor).toEqual([300 - right.anchor[0], right.anchor[1]]);
-    expect(left.d.startsWith('M234,320')).toBe(true);
+    const [view] = MOUTH_VIEWS;
+    const right = view.regions.find((r) => r.name === 'Lengua derecha')!;
+    const left = view.regions.find((r) => r.name === 'Lengua izquierda')!;
+    expect(left.anchor).toEqual([view.width - right.anchor[0], right.anchor[1]]);
+    expect(left.d.startsWith('M218,262')).toBe(true);
+  });
+
+  it('keeps every anchor inside its view', () => {
+    for (const view of MOUTH_VIEWS) {
+      for (const { anchor } of view.regions) {
+        expect(anchor[0]).toBeGreaterThan(0);
+        expect(anchor[0]).toBeLessThan(view.width);
+        expect(anchor[1]).toBeGreaterThan(0);
+        expect(anchor[1]).toBeLessThan(view.height);
+      }
+    }
   });
 
   it('approximates only exact region names', () => {
-    expect(approximatePoint('Paladar')).toMatchObject({ view: 'paladar' });
-    expect(approximatePoint('Labio inferior')).toMatchObject({ view: 'labios' });
+    expect(approximatePoint('Paladar')).toMatchObject({ view: 'boca' });
+    expect(approximatePoint('Labio inferior')).toMatchObject({ view: 'boca' });
     expect(approximatePoint('Frenillo')).toBeNull();
     expect(approximatePoint('Detrás dentadura')).toBeNull();
   });
@@ -35,11 +46,11 @@ describe('mouth views', () => {
 
 describe('point validation', () => {
   it('accepts a point inside a known view', () => {
-    const r = validateSoreInput({ ...base, point: { view: 'lengua', x: 0.2, y: 0.6 } });
-    expect(r.ok && r.value.point).toEqual({ view: 'lengua', x: 0.2, y: 0.6 });
+    const r = validateSoreInput({ ...base, point: { view: 'boca', x: 0.2, y: 0.6 } });
+    expect(r.ok && r.value.point).toEqual({ view: 'boca', x: 0.2, y: 0.6 });
   });
 
-  it.each([{ view: 'nariz', x: 0.5, y: 0.5 }, { view: 'lengua', x: 1.5, y: 0.5 }, { view: 'lengua', x: '0.5', y: 0.5 }, 'lengua'])(
+  it.each([{ view: 'nariz', x: 0.5, y: 0.5 }, { view: 'lengua', x: 0.5, y: 0.5 }, { view: 'boca', x: 1.5, y: 0.5 }, { view: 'boca', x: '0.5', y: 0.5 }, 'boca'])(
     'rejects %j',
     (point) => {
       expect(validateSoreInput({ ...base, point }).ok).toBe(false);
@@ -64,8 +75,8 @@ describe('migration', () => {
 
     const store = new SoreStore(path);
     expect(store.get(1)).toMatchObject({ location: 'Paladar', point: null });
-    const updated = store.update(1, { ...store.get(1)!, point: { view: 'paladar', x: 0.5, y: 0.5 } });
-    expect(updated?.point).toEqual({ view: 'paladar', x: 0.5, y: 0.5 });
+    const updated = store.update(1, { ...store.get(1)!, point: { view: 'boca', x: 0.5, y: 0.5 } });
+    expect(updated?.point).toEqual({ view: 'boca', x: 0.5, y: 0.5 });
     store.close();
     new SoreStore(path).close();
   });
