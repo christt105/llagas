@@ -1,9 +1,11 @@
 import { useMemo, useRef, useState } from 'preact/hooks';
 import { addDays, localToday } from '../../../shared/dates.ts';
 import type { Sore, SoreInput } from '../../../shared/types.ts';
-import { CAUSES, DEFAULT_LOCATIONS, PAIN_LABELS, TREATMENTS } from '../../../shared/vocab.ts';
+import { REGION_NAMES } from '../../../shared/mouth.ts';
+import { CAUSES, PAIN_LABELS, TREATMENTS } from '../../../shared/vocab.ts';
 import { createSore, deleteSore, setSorePhotos, thumbUrl, updateSore, uploadToImmich, useConfig } from '../api.ts';
 import { Icon, ICONS } from '../components/icons.tsx';
+import { MouthPicker } from '../components/MouthPicker.tsx';
 import { PhotoPicker } from '../components/PhotoPicker.tsx';
 import { PhotoViewer } from '../components/PhotoViewer.tsx';
 import { navigate } from '../router.ts';
@@ -17,7 +19,7 @@ function knownLocations(sores: Sore[]): string[] {
   const counts = new Map<string, number>();
   for (const s of sores) counts.set(s.location, (counts.get(s.location) ?? 0) + 1);
   const used = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([l]) => l);
-  return [...used, ...DEFAULT_LOCATIONS.filter((l) => !counts.has(l))];
+  return [...used, ...REGION_NAMES.filter((l) => !counts.has(l))];
 }
 
 function ChipGroup({ options, value, onChange }: { options: readonly string[]; value: string | null; onChange: (v: string | null) => void }) {
@@ -53,8 +55,9 @@ export function SoreForm({ sores, sore }: { sores: Sore[]; sore?: Sore }) {
           cause: sore.cause,
           treatment: sore.treatment,
           notes: sore.notes,
+          point: sore.point,
         }
-      : { startedOn: today, healedOn: null, location: '', pain: null, cause: null, treatment: null, notes: '' },
+      : { startedOn: today, healedOn: null, location: '', pain: null, cause: null, treatment: null, notes: '', point: null },
   );
   const [customLocation, setCustomLocation] = useState(() => (sore && !locations.includes(sore.location) ? sore.location : ''));
   const [showCustom, setShowCustom] = useState(customLocation !== '');
@@ -130,34 +133,47 @@ export function SoreForm({ sores, sore }: { sores: Sore[]; sore?: Sore }) {
 
       <div class="field">
         <span class="label">Ubicación</span>
-        <div class="chips">
-          {locations.map((option) => (
-            <button
-              type="button"
-              key={option}
-              class="chip"
-              aria-pressed={!showCustom && form.location === option}
-              onClick={() => {
-                setShowCustom(false);
-                set('location', option);
-              }}
-            >
-              {option}
+        <MouthPicker
+          point={form.point}
+          location={location}
+          others={sores.filter((s) => s.id !== sore?.id)}
+          onPick={(point, region) => {
+            setShowCustom(false);
+            setForm((f) => ({ ...f, point, location: region }));
+          }}
+          onClear={() => set('point', null)}
+        />
+        <details class="table-view">
+          <summary>Elegir de la lista o escribirla</summary>
+          <div class="chips">
+            {locations.map((option) => (
+              <button
+                type="button"
+                key={option}
+                class="chip"
+                aria-pressed={!showCustom && form.location === option}
+                onClick={() => {
+                  setShowCustom(false);
+                  set('location', option);
+                }}
+              >
+                {option}
+              </button>
+            ))}
+            <button type="button" class="chip" aria-pressed={showCustom} onClick={() => setShowCustom(true)}>
+              Otra…
             </button>
-          ))}
-          <button type="button" class="chip" aria-pressed={showCustom} onClick={() => setShowCustom(true)}>
-            Otra…
-          </button>
-        </div>
-        {showCustom && (
-          <input
-            type="text"
-            placeholder="¿Dónde?"
-            value={customLocation}
-            onInput={(e) => setCustomLocation(e.currentTarget.value)}
-            autoFocus
-          />
-        )}
+          </div>
+          {showCustom && (
+            <input
+              type="text"
+              placeholder="¿Dónde?"
+              value={customLocation}
+              onInput={(e) => setCustomLocation(e.currentTarget.value)}
+              autoFocus
+            />
+          )}
+        </details>
       </div>
 
       <div class="field">

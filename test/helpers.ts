@@ -12,6 +12,7 @@ export function sore(startedOn: string, healedOn: string | null, overrides: Part
     cause: null,
     treatment: null,
     notes: '',
+    point: null,
     photos: [],
     createdAt: '',
     updatedAt: '',

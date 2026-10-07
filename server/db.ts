@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { isIsoDate } from '../shared/dates.ts';
+import { MOUTH_VIEW_IDS, type MouthPoint } from '../shared/mouth.ts';
 import type { Sore, SoreInput } from '../shared/types.ts';
 
 const SCHEMA = `
@@ -14,6 +15,9 @@ CREATE TABLE IF NOT EXISTS sores (
   cause       TEXT,
   treatment   TEXT,
   notes       TEXT NOT NULL DEFAULT '',
+  map_view    TEXT,
+  map_x       REAL,
+  map_y       REAL,
   created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   CHECK (healed_on IS NULL OR healed_on >= started_on)
@@ -35,8 +39,26 @@ interface SoreRow {
   cause: string | null;
   treatment: string | null;
   notes: string;
+  map_view: string | null;
+  map_x: number | null;
+  map_y: number | null;
   created_at: string;
   updated_at: string;
+}
+
+const MIGRATIONS: { column: string; sql: string }[] = [
+  { column: 'map_view', sql: 'ALTER TABLE sores ADD COLUMN map_view TEXT' },
+  { column: 'map_x', sql: 'ALTER TABLE sores ADD COLUMN map_x REAL' },
+  { column: 'map_y', sql: 'ALTER TABLE sores ADD COLUMN map_y REAL' },
+];
+
+function validatePoint(value: unknown): { ok: true; point: MouthPoint | null } | { ok: false } {
+  if (value === null || value === undefined) return { ok: true, point: null };
+  if (typeof value !== 'object') return { ok: false };
+  const { view, x, y } = value as Record<string, unknown>;
+  const inRange = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 1;
+  if (typeof view !== 'string' || !MOUTH_VIEW_IDS.includes(view) || !inRange(x) || !inRange(y)) return { ok: false };
+  return { ok: true, point: { view, x: x as number, y: y as number } };
 }
 
 export type Validation = { ok: true; value: SoreInput } | { ok: false; error: string };
@@ -67,6 +89,9 @@ export function validateSoreInput(body: unknown): Validation {
     if (!Number.isInteger(pain) || pain < 1 || pain > 5) return { ok: false, error: 'El dolor va de 1 a 5' };
   }
 
+  const point = validatePoint(b.point);
+  if (!point.ok) return { ok: false, error: 'Punto del mapa inválido' };
+
   return {
     ok: true,
     value: {
@@ -77,8 +102,13 @@ export function validateSoreInput(body: unknown): Validation {
       cause: optionalText(b.cause),
       treatment: optionalText(b.treatment),
       notes: typeof b.notes === 'string' ? b.notes.trim() : '',
+      point: point.point,
     },
   };
+}
+
+function pointColumns(point: MouthPoint | null): [string | null, number | null, number | null] {
+  return point ? [point.view, point.x, point.y] : [null, null, null];
 }
 
 export class SoreStore {
@@ -89,6 +119,8 @@ export class SoreStore {
     this.db = new DatabaseSync(path);
     this.db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
     this.db.exec(SCHEMA);
+    const columns = (this.db.prepare('PRAGMA table_info(sores)').all() as unknown as { name: string }[]).map((c) => c.name);
+    for (const migration of MIGRATIONS) if (!columns.includes(migration.column)) this.db.exec(migration.sql);
   }
 
   private photosFor(ids: number[]): Map<number, string[]> {
@@ -115,6 +147,7 @@ export class SoreStore {
       cause: row.cause,
       treatment: row.treatment,
       notes: row.notes,
+      point: row.map_view !== null && row.map_x !== null && row.map_y !== null ? { view: row.map_view, x: row.map_x, y: row.map_y } : null,
       photos,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -137,10 +170,10 @@ export class SoreStore {
   create(input: SoreInput): Sore {
     const result = this.db
       .prepare(
-        `INSERT INTO sores (started_on, healed_on, location, pain, cause, treatment, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO sores (started_on, healed_on, location, pain, cause, treatment, notes, map_view, map_x, map_y)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(input.startedOn, input.healedOn, input.location, input.pain, input.cause, input.treatment, input.notes);
+      .run(input.startedOn, input.healedOn, input.location, input.pain, input.cause, input.treatment, input.notes, ...pointColumns(input.point));
     return this.get(Number(result.lastInsertRowid))!;
   }
 
@@ -148,9 +181,9 @@ export class SoreStore {
     const result = this.db
       .prepare(
         `UPDATE sores SET started_on = ?, healed_on = ?, location = ?, pain = ?, cause = ?, treatment = ?, notes = ?,
-         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`,
+         map_view = ?, map_x = ?, map_y = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`,
       )
-      .run(input.startedOn, input.healedOn, input.location, input.pain, input.cause, input.treatment, input.notes, id);
+      .run(input.startedOn, input.healedOn, input.location, input.pain, input.cause, input.treatment, input.notes, ...pointColumns(input.point), id);
     return result.changes ? this.get(id) : null;
   }
 

@@ -3,6 +3,7 @@ import { addDays, formatDate, localToday, monthLabel, toDayNumber } from '../../
 import { computeStats, durationDays, type GroupStat } from '../../../shared/stats.ts';
 import type { Sore } from '../../../shared/types.ts';
 import { ChartCard, ColumnChart, RowChart, Timeline } from '../components/charts.tsx';
+import { MouthOverview } from '../components/MouthOverview.tsx';
 import { Tile } from '../components/Tile.tsx';
 import { navigate } from '../router.ts';
 
@@ -151,6 +152,10 @@ export function StatsPage({ sores }: { sores: Sore[] }) {
           <span>Curada</span>
           <span class="active">Activa</span>
         </div>
+      </ChartCard>
+
+      <ChartCard title="Mapa" subtitle="Todo el historial; toca un punto para abrir la llaga">
+        <MouthOverview sores={sores} />
       </ChartCard>
 
       <ChartCard title="Por ubicación" subtitle="Todo el historial">

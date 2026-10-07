@@ -25,6 +25,7 @@ tratamiento:
         cause: null,
         treatment: null,
         notes: '',
+        point: null,
       },
       images: ['IMG_20260120_211742.jpg'],
     });
