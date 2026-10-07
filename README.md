@@ -1,6 +1,7 @@
 # Llagas
 
 [![CI](https://github.com/christt105/llagas/actions/workflows/ci.yml/badge.svg)](https://github.com/christt105/llagas/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/github/v/tag/christt105/llagas?sort=semver&label=version)](https://github.com/christt105/llagas/tags)
 
 Self-hosted tracker for mouth ulcers: quick logging from the phone, history, statistics, a tappable mouth map, and photos stored in Immich (only asset ids are kept here, nothing is duplicated). Installable as a PWA. The UI is in Spanish.
 
